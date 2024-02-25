@@ -40,6 +40,16 @@ async def create_todo(new_todo: Todo):
 
 
 # Update Todo
+@app.put("/todos")
+async def update_todo(updated_todo: Todo):
+    for todo in todos:
+        if todo.id == updated_todo.id:
+            todo.id = updated_todo.id
+            todo.name = updated_todo.name
+
+            return {f"'message': Updated todo {updated_todo.name}'"}
+
+    return {f"'message': 'Todo not found'"}
 
 
 # Delete Todo by id
