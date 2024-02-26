@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 ENV PYTHONUNBUFFERED=1
 
-WORKDIR ./
+WORKDIR /server
 
 COPY requirements.txt requirements.txt
 
