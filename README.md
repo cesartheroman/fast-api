@@ -18,7 +18,7 @@ You'll need to have Docker installed on your machine to run this in the containe
    ```sh
    git pull origin main
    ```
-3. Edit the `.env.sample` file and change to `.env` and fill in with appropriate env vars.
+3. Edit the `.env.sample` file and change to `.env` and fill in with appropriate env vars. (Optional if not contributing code within repo)
 4. Pull and run the container image (first time)
      ```sh
      docker compose up --build # will build image and container
