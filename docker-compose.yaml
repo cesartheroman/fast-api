@@ -1,4 +1,4 @@
-version '3.9'
+version: "3.9"
 
 services:
   server:
@@ -8,4 +8,4 @@ services:
     ports:
       - 8000:8000
     environment:
-      BAYOU_API=${BAYOU_API}
+      BAYOU_API: ${BAYOU_API_KEY}
