@@ -4,7 +4,6 @@ services:
   server:
     build:
       context: .
-    command: uvicorn main:app --reload
     ports:
       - 8000:8000
     environment:
