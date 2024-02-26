@@ -37,7 +37,7 @@ def BayouAPICustomer(utility, email):
 
     # bayou_api_key = "test_221_f6f1a2d9daef91272215d4761f52ff80465c7dee839b4585a0aab96ddc284159"
 
-    bayou_api_key = os.environ.get("BAYOUR_API_KEY")
+    bayou_api_key = os.environ.get("BAYOU_API_KEY")
 
     customer = requests.post(
         f"https://{bayou_domain}/api/v2/customers",
