@@ -14,7 +14,7 @@ class Todo(BaseModel):
 sample_todo = Todo(id=1, name="Sample todo")
 global_todos: List[Todo] = [sample_todo]
 
-
+# This is a change
 # Get Todos
 @app.get("/todos")
 async def get_todos():
