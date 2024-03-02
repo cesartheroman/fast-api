@@ -44,9 +44,11 @@ class Dehumidifier(Appliance):
     pints_to_L = 0.473176
     dehumidifier_type: str # type of dehumidifier, whether "whole home" or "portable", from the Energy Star API (or user specified)
     
+    @property
     def water_removal_to_L(self) -> float:
         return self.water_removal * self.pints_to_L
-    
+
+    @property
     def kWh_per_year(self) -> float:
         return self.water_removal_to_L / self.IEF * self.tank_switches_per_day * self.usage_per_year * 24 * 365
     
@@ -75,20 +77,60 @@ class Dryer(Appliance):
     average_uses = 283 # average number of dryer uses per year
     weekly_user_loads: float # number of user loads in a given week
     average_user: bool #determine if average user, whether true or false
-        
+
+    @property
     def yearly_loads(self) -> float:
-        if average_user:
-            return average_uses
+        if self.average_user:
+            return self.average_uses
         else:
-            return weekly_user_loads*52
-    
+            return self.weekly_user_loads*52
+
+    @property
     def kWh_per_year(self) -> float:
         if dryer_type == "standard":
             return 1 / self.CEF * self.standard_test_load * self.yearly_loads
         elif dryer_type == "compact":
             return 1 / self.CEF * self.compact_test_load * self.yearly_loads
-        
-        
+
+class Washer(Appliance):
+
+    # The integrated modified energy factor (IMEF, ft3/kWh/cycle) can be used to calculate the energy consumption.
+    # This is the size of the container in cubic feet divided by the energy consumption per cycle.
+    # We also need the volume (in cubic feet) and the number of washes the user typically does in a week.
+    # Though it does not apply directly to the energy consumption we can also track water usage.
+    # Another parameter (IWF) tracks water consumed per cubic feet of capacity (in gal/ft3)
+    # Source: https://dev.socrata.com/foundry/data.energystar.gov/bghd-e2wd
+    # The efficiency criteria from Energy Star is dependent on the size of the washer:
+    # For residential washers (front loading) > 2.5 ft3, IMEF >= 2.76, IWF <= 3.2
+    # For residential washers (top loading) > 2.5 ft3, IMEF >= 2.06, IWF <= 4.3
+    # For all residential washers <= 2.5 ft3, IMEF >= 2.07, IWF <= 4.2
+    # Commercial washers are different and are not included in this class currently
+    # Source: https://www.energystar.gov/products/clothes_washers/key_product_criteria
+
+    IMEF: float #integrated modified energy factor, ft3/kWh/cycle
+    IWF: float #integrated water factor, gal/ft3
+    ES_annual_water_use: float #this is based on the energy star parameter - NOT the actual user's annual water use (gal/year)
+    washer_volume: float #volume of washer in ft3
+    weekly_user_loads: float #number of washes the user does in a week
+    average_uses = 295 #estimated on energy star site
+    average_user: bool
+    load_type: str # front or top loading, need to track but does not impact calcs
+
+    @property
+    def yearly_loads(self) -> float:
+        if self.average_user:
+            return self.average_uses
+        else:
+            return self.weekly_user_loads*52
+    @property
+    def kWh_per_year(self) -> float:
+        return self.washer_volume/self.IMEF * self.yearly_loads
+
+    @property
+    def annual_water_use(self) -> float:
+        return self.ES_annual_water_use/self.average_uses * self.yearly_loads
+
+
 # Used to build a member of the Appliance class based on values from a dict 
 def appliance_builder(appliance_type, **kwargs):
     
