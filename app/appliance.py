@@ -130,6 +130,41 @@ class Washer(Appliance):
     def annual_water_use(self) -> float:
         return self.ES_annual_water_use/self.average_uses * self.yearly_loads
 
+class Dishwasher(Appliance):
+
+
+    # The energy use of a dishwasher is calculated using the provided Energy Star annual energy use.
+    # This energy use is based on 215 loads per year (roughly 4 per week).
+    # We just need the amount of times the user uses their dishwasher to calculate this more accurately.
+    # Source: https://dev.socrata.com/foundry/data.energystar.gov/q8py-6w3f
+    # To meet the Energy Star efficiency criteria the dishwasher must meet the following:
+    # For Standard dishwashers (>= 8 place settings + 6 serving pieces): <= 270 kWh/year, <=3.5 gal/cycle
+    # For Compact dishwashers (< 8 place settings + 6 serving pieces): <= 203 kWh/year, <=3.10 gal/cycle
+    # Source: https://www.energystar.gov/products/dishwashers/key_product_criteria
+    
+    ES_annual_energy_use: float # Energy use in kWh/year for 215 uses
+    weekly_user_loads: float # User defined, weekly loads
+    water_use_per_cycle: float # Expected water use per cycle in gal/cycle
+    average_uses = 215
+    average_user: bool # Determines whether or not to use average_uses
+    dishwasher_type: str # "Standard" or "Compact"
+
+    @property
+    def yearly_loads(self) -> float:
+        if self.average_user:
+            return self.average_uses
+        else:
+            return self.weekly_user_loads*52
+
+    @property
+    def kWh_per_year(self) -> float:
+        return self.ES_annual_energy_use * self.yearly_loads / self.average_uses
+
+    @property
+    def annual_water_use(self) -> float:
+        return self.water_use_per_cycle * self.yearly_loads
+
+
 
 # Used to build a member of the Appliance class based on values from a dict 
 def appliance_builder(appliance_type, **kwargs):
