@@ -135,54 +135,133 @@ class Washer(Appliance):
 def appliance_builder(appliance_type, **kwargs):
     
     if appliance_type == "dehumidifiers":
-        
+        IEF = 1
+        water_removal = 1
+        tank_switches_per_day = 1
+        usage_per_year = 0.5
+        dehumidifier_type = "portable"
+
+        dehumidifier_flags = [0,0,0,0,0]
+
         for name, val in kwargs.items():
             if name == "dehumidifier_efficiency_integrated_energy_factor_l_kwh_":
                 IEF = val
+                dehumidifier_flags[0] = 1
             elif name == "dehumidifier_water_removal_capacity_per_appendix_x1_pints_day":
-                water_removal = val*pints_to_L
+                water_removal = val
+                dehumidifier_flags[1] = 1
             elif name == "tank_switches_per_day":
                 tank_switches_per_day = val
+                dehumidifier_flags[2] = 1
             elif name == "usage_per_year":
                 usage_per_year = val
+                dehumidifier_flags[3] = 1
             elif name == "dehumidifier_type":
                 dehumidifier_type = val
-                            
-        appliance = Dehumidifier(
-            IEF = IEF,
-            water_removal = water_removal,
-            tank_switches_per_day = tank_switches_per_day,
-            usage_per_year = usage_per_year,
-            dehumidifier_type = dehumidifier_type
-        )
+                dehumidifier_flags[4] = 1
+
+        if not 0 in dehumidifier_flags:
+            appliance = Dehumidifier(
+                IEF = IEF,
+                water_removal = water_removal,
+                tank_switches_per_day = tank_switches_per_day,
+                usage_per_year = usage_per_year,
+                dehumidifier_type = dehumidifier_type
+            )
+
+            return appliance
             
     elif appliance_type == "clothes dryers":
-        
+
+        CEF = 1
+        dryer_type = "compact"
+        dryer_energy_type = "gas"
+        weekly_user_loads = 1
+        average_user = False
+
+        dryer_flags = [0,0,0,0,0]
         for name, val in kwargs.items():
             if name == 'combined_energy_factor_cef':
                 CEF = val
+                dryer_flags[0] = 1
             elif name == "dryer_type":
                 dryer_type = val
+                dryer_flags[1] = 1
             elif name == "dryer_energy_type":
                 dryer_energy_type = val
+                dryer_flags[2] = 1
             elif name == "number_of_loads_per_week":
                 weekly_user_loads = val
+                dryer_flags[3] = 1
             elif name == "average_user":
+                dryer_flags[4] = 1
                 if val == "yes":
                     average_user = True
                 elif val == "no":
                     average_user = False
             
-                            
-        appliance = Dryer(
-            CEF = CEF,
-            dryer_type = dryer_type,
-            dryer_energy_type = dryer_energy_type,
-            weekly_user_loads = weekly_user_loads,
-            average_user = average_user
-        )
-        
-        
+
+        if not 0 in dryer_flags:
+            appliance = Dryer(
+                CEF = CEF,
+                dryer_type = dryer_type,
+                dryer_energy_type = dryer_energy_type,
+                weekly_user_loads = weekly_user_loads,
+                average_user = average_user
+            )
+
+            return appliance
+
+    elif appliance_type == "clothes washers":
+
+        IMEF = 1
+        IWF = 1
+        load_type = "Front Load"
+        ES_annual_water_use = 1
+        washer_volume = 1
+        weekly_user_loads = 1
+        average_user = False
+
+        washer_flags = [0,0,0,0,0,0,0]
+        for name, val in kwargs.items():
+            if name == 'integrated_modified_energy_factor_imef':
+                IMEF = val
+                washer_flags[0] = 1
+            elif name == "load_configuration":
+                load_type = val
+                washer_flags[1] = 1
+            elif name == "annual_water_use_gallons_year":
+                ES_annual_water_use = val
+                washer_flags[2] = 1
+            elif name == "integrated_water_factor_iwf":
+                IWF = val
+                washer_flags[3] = 1
+            elif name == "volume_cubic_feet":
+                washer_volume = val
+                washer_flags[4] = 1
+            elif name == "number_of_loads_per_week":
+                weekly_user_loads = val
+                washer_flags[5] = 1
+            elif name == "average_user":
+                washer_flags[6] = 1
+                if val == "yes":
+                    average_user = True
+                elif val == "no":
+                    average_user = False
+
+        if not 0 in washer_flags:
+            appliance = Washer(
+                IMEF = IMEF,
+                load_type = load_type,
+                ES_annual_water_use = ES_annual_water_use,
+                IWF = IWF,
+                washer_volume = washer_volume,
+                weekly_user_loads = weekly_user_loads,
+                average_user = average_user
+            )
+
+
+            return appliance
 def ApplianceEnergyStarComparison(appliance_type, Appliance, appliance_df):
     
     if appliance_type == "dehumidifiers":
