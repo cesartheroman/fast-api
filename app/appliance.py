@@ -141,7 +141,7 @@ class Dishwasher(Appliance):
     # For Standard dishwashers (>= 8 place settings + 6 serving pieces): <= 270 kWh/year, <=3.5 gal/cycle
     # For Compact dishwashers (< 8 place settings + 6 serving pieces): <= 203 kWh/year, <=3.10 gal/cycle
     # Source: https://www.energystar.gov/products/dishwashers/key_product_criteria
-    
+
     ES_annual_energy_use: float # Energy use in kWh/year for 215 uses
     weekly_user_loads: float # User defined, weekly loads
     water_use_per_cycle: float # Expected water use per cycle in gal/cycle
@@ -295,8 +295,45 @@ def appliance_builder(appliance_type, **kwargs):
                 average_user = average_user
             )
 
+            return appliance
+
+    elif appliance_type == "dishwashers":
+
+        dishwasher_flags = [0,0,0,0,0]
+
+        for name, val in kwargs.items():
+
+            if name == "annual_energy_use_kwh_year":
+                dishwasher_flags[0] = 1
+                ES_annual_energy_use = val
+            elif name == "water_use_gallons_cycle":
+                dishwasher_flags[1] = 1
+                water_use_per_cycle = val
+            elif name == "number_of_loads_per_week":
+                dishwasher_flags[2] = 1
+                weekly_user_loads = val
+            elif name == "type":
+                dishwasher_flags[3] = 1
+                dishwasher_type = val
+            elif name == "average_user":
+                dishwasher_flags[4] = 1
+                if val == "yes":
+                    average_user = True
+                elif val == "no":
+                    average_user = False
+
+        if not 0 in dishwasher_flags:
+            appliance = Dishwasher(
+                ES_annual_energy_use = ES_annual_energy_use,
+                water_use_per_cycle = water_use_per_cycle,
+                weekly_user_loads = weekly_user_loads,
+                dishwasher_type = dishwasher_type,
+                average_user = average_user
+            )
 
             return appliance
+
+
 def ApplianceEnergyStarComparison(appliance_type, Appliance, appliance_df):
     
     if appliance_type == "dehumidifiers":
