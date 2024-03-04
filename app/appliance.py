@@ -174,14 +174,16 @@ class Cooking(Appliance):
     # The "most efficient criteria" is dependent on the integrated annual energy consumption (must be less than 195 kWh/yr)
     # For ranges, the criteria is dependent on the low-power mode energy consumption <7 kWh/yr
     # Source: https://www.energystar.gov/products/electric_cooking_products/key_product_criteria
-    
+
 
     ES_annual_energy_use: float
     average_uses = 418 # number of yearly uses per year for average user
     average_user: bool
     average_time_use = 31 #minutes for average cook
-    weekly_user_uses: float
-    weekly_user_time: float
+    weekly_user_uses: float # User defined, weekly uses
+    weekly_user_time: float # User defined, minutes user uses cooktop
+    cooking_type: str # "Cooktop" or "Range"
+
 
     @property
     def yearly_uses(self) -> float:
@@ -370,6 +372,42 @@ def appliance_builder(appliance_type, **kwargs):
 
             return appliance
 
+    elif appliance_type == "electric cooking":
+
+        cooking_flags = [0,0,0,0,0]
+
+        for name, val in kwargs.items():
+
+            if name == "annual_energy_consumption_kwh_yr":
+                cooking_flags[0] = 1
+                ES_annual_energy_use = val
+            elif name == "product_type":
+                cooking_flags[1] = 1
+                cooking_type = val
+            elif name == "weekly_user_uses":
+                cooking_flags[2] = 1
+                weekly_user_uses = val
+            elif name == "weekly_user_time":
+                cooking_flags[3] = 1
+                weekly_user_time = val
+            elif name == "average_user":
+                cooking_flags[4] = 1
+                if val == "yes":
+                    average_user = True
+                elif val == "no":
+                    average_user = False
+                    
+        if not 0 in cooking_flags:
+
+            appliance = Cooking(
+                ES_annual_energy_use = ES_annual_energy_use,
+                cooking_type = cooking_type,
+                weekly_user_uses = weekly_user_uses,
+                weekly_user_time = weekly_user_time,
+                average_user = average_user
+            )
+
+            return appliance
 
 def ApplianceEnergyStarComparison(appliance_type, Appliance, appliance_df):
     
