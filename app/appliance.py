@@ -165,6 +165,43 @@ class Dishwasher(Appliance):
         return self.water_use_per_cycle * self.yearly_loads
 
 
+class Cooking(Appliance):
+
+    # The energy use of cooking appliances (stoves, etc.) is measured by the API using the annual energy consumption.
+    # This is based off of 4 "cooking events" per week, averaging 31 minutes.
+    # In order to calculate the user's energy use we'll need how often they actually cook.
+    # Source: https://dev.socrata.com/foundry/data.energystar.gov/m6gi-ng33
+    # The "most efficient criteria" is dependent on the integrated annual energy consumption (must be less than 195 kWh/yr)
+    # For ranges, the criteria is dependent on the low-power mode energy consumption <7 kWh/yr
+    # Source: https://www.energystar.gov/products/electric_cooking_products/key_product_criteria
+    
+
+    ES_annual_energy_use: float
+    average_uses = 418 # number of yearly uses per year for average user
+    average_user: bool
+    average_time_use = 31 #minutes for average cook
+    weekly_user_uses: float
+    weekly_user_time: float
+
+    @property
+    def yearly_uses(self) -> float:
+        if self.average_user:
+            return self.average_uses
+        else:
+            return self.weekly_user_loads*52
+
+    @property
+    def time_use(self) -> float:
+        if self.average_user:
+            return self.average_time_use
+        else:
+            return self.weekly_user_time
+
+    @property
+    def kWh_per_year(self) -> float:
+        return self.ES_annual_energy_use * self.yearly_uses / self.average_uses * self.time_use / self.average_time_use
+
+
 
 # Used to build a member of the Appliance class based on values from a dict 
 def appliance_builder(appliance_type, **kwargs):
