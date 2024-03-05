@@ -396,7 +396,7 @@ def appliance_builder(appliance_type, **kwargs):
                     average_user = True
                 elif val == "no":
                     average_user = False
-                    
+
         if not 0 in cooking_flags:
 
             appliance = Cooking(

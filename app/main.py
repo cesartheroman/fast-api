@@ -53,7 +53,7 @@ async def read_user(user_id: int):
 
 
 # This is to create a new customer in Bayou
-@app.post("/new_customers/")
+@app.post("/customers/")
 def bayou_customer_generation(
         user_id: int
 ):
@@ -75,7 +75,7 @@ def bayou_customer_generation(
 
 
 # This is to pull customer data from Bayou
-@app.post("/customers/")
+@app.get("/customers/")
 def bayou_customer_pull(user_id: int):
     bayou_user = users[user_id]
     utility = bayou_user["utility"]
@@ -101,7 +101,7 @@ def bayou_customer_credentials(customer_id: int):
     return customer_link
 
 
-@app.post("/electricity_data/")
+@app.post("/electricity/")
 def bayou_customer_elec_data(
         customer_id: int
 ):
@@ -111,7 +111,7 @@ def bayou_customer_elec_data(
     print(elec_dict)
     return elec_dict
 
-@app.get("/elec_graphs/")
+@app.get("/graphs/")
 def create_electricity_graph(
         customer_id: int
 ):
