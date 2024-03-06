@@ -204,6 +204,43 @@ class Cooking(Appliance):
         return self.ES_annual_energy_use * self.yearly_uses / self.average_uses * self.time_use / self.average_time_use
 
 
+class Freezer(Appliance):
+
+    # Freezers are going to be difficult to estimate - there's not a "uses" parameter that's easy to extract.
+    # In addition, in the home they're often paired with a refrigerator. Standalone freezers may not come up as often.
+    # The metric for "most efficient" is "10% less energy use than the minimum federal efficiency standards".
+    # Source: https://www.energystar.gov/products/refrigerators/key_product_criteria
+    # The minimum efficiency standard is calculated based off of two tests at two reference temperatures.
+    # Those reference temperatures are discussed here:
+    # Source: https://www.aham.org/DownloadableFiles/HRF_1_2019_draft.pdf
+    # The federal register discusses using this test method here:
+    # Source: https://www.ecfr.gov/current/title-10/chapter-II/subchapter-D/part-430#Appendix-B-to-Subpart-B-of-Part-430
+    # The ambient temp is set to 90 degF and the freezer has to at least hit 0 degF.
+    # That temp requirement is the same for refrigerator-freezers (for the freezer component).
+    # Currently I'm not sure how to modulate the energy use. My first thought is to collect data about the user's
+    # ambient temperature.
+    # However, literature suggests no clear relationship between ambient temperature and electrical power use.
+    # Source: https://core.ac.uk/download/pdf/227106144.pdf
+    # It mainly just seems to vary based on the time of the year.
+    # Keep in mind however that all of that research was done in England which would have a more consistent climate
+    # (than the US at least).
+    # Another source suggests some relationship.
+    # Source: https://www.sciencedirect.com/science/article/abs/pii/S0196890401000693
+    # Finally another source suggests an additional relationship for temperature vs. power consumption (a thesis).
+    # Source: https://oaktrust.library.tamu.edu/bitstream/handle/1969.1/155467/BURGESS-THESIS-2015.pdf?sequence=1
+    # We'll just use the average power of the freezer for now - may need to investigate further later on.
+
+
+    is_compact: bool
+    average_user: bool
+    ES_annual_energy_use: float
+
+    @property
+    def kWh_per_year(self) -> float:
+        return self.ES_annual_energy_use
+
+
+    
 
 # Used to build a member of the Appliance class based on values from a dict 
 def appliance_builder(appliance_type, **kwargs):
