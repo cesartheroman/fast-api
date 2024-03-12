@@ -239,6 +239,50 @@ class Freezer(Appliance):
     def kWh_per_year(self) -> float:
         return self.ES_annual_energy_use
 
+class HeatPump(Appliance):
+
+    # There are multiple heat pump calculations - this appliance is much more involved.
+    # For example, the SEER2 (seasonal energy efficiency ratio) is calculated using the "cooling season", with 8 bin
+    # temperatures of 5F increments (67, 72, 77 ... 102 F).  At each "bin" (increment), the cooling capability is
+    # compared to the electrical consumption.  The sum of this capability is compared to the sum of the consumption.
+    # The 67F bin is 65 - 69F, the 72 bin is 70F - 74F and so on.
+
+    # The HSPF2 is based on heating in six different climate regions, ranging from 67 F all the way down to
+    # -23 F (binned similarly as SEER2).
+    # Source: https://www.ecfr.gov/current/title-10/chapter-II/subchapter-D/part-430/subpart-B/appendix-Appendix%20M1%20to%20Subpart%20B%20of%20Part%20430
+    # More reading on SEER2 and EER2:
+    # https://www.energy.gov/gc/articles/air-conditioner-regional-standards-brochure
+    # Interestingly, none of the ducted heat pumps on the Energy Star database meet the "most efficient criteria":
+    # Source: https://dev.socrata.com/foundry/data.energystar.gov/3m3x-a2hy
+    # This criteria excludes all air conditioners as they do not provide "compressor-based cooling".
+    # Source: https://www.energystar.gov/sites/default/files/asset/document/ASHP%20ENERGY%20STAR%20Most%20Efficient%202024%20Final%20Criteria.pdf
+
+    # The key to these calculations is the amount of energy removed or added to the system.
+    # For cooling systems we'll need the energy removed which will come from the home model.
+    # For heating systems it's in reverse - however, the amount of heat able to be delivered is typically related to the
+    # temperature inside (bracketed at 47F, 17F, 7F).
+    # For cooling we'll use the SEER2 value, and for heating we'll use HSFP2.
+    # The energy_requirements value will come from the separate Home model.
+
+
+    seer2: float # The seasonal energy efficiency ratio in Btu/W*h, total heat removed / electrical energy consumed
+    # for an air conditioner in a cooling season
+    eer2: float # energy efficiency ratio, cooling effect / energy consumed for air conditioner or heat pump in Btu/W*h
+    hspf2: float # Heating seasonal performance factor, total heating output of central AC heat pump divided by the
+    # total electric power input, in Btu/W*h
+    operating_mode: str # "cooling" or "heating"
+    energy_requirements: float # The energy delivered or removed from the home, in Btu/year
+
+    @property
+    def kWh_per_year(self) -> float:
+        if self.operating_mode == "heating":
+            return self.energy_requirements/self.hspf2 * 1000
+        elif self.operating_mode == "cooling":
+            return self.energy_requirements/self.seer2 * 1000
+
+
+
+
 
     
 
