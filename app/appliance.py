@@ -13,15 +13,18 @@ from pydantic import BaseModel
 import numpy as np
 import requests
 import pandas as pd
+from dataclasses import dataclass
 from copy import deepcopy
 
 #base class for all appliances
+@dataclass
 class Appliance:
     appliance_type: str # Simple declaration of the type of appliance (dehumidifier, dryer, etc.)
     model_number: str # Used in most lookups for the Energy Star API regardless of appliance type
         
   
 #class for dehumidifiers
+@dataclass
 class Dehumidifier(Appliance):
     
            # The dehumidifer integrated energy factor is calculated here: https://www.ecfr.gov/current/title-10/chapter-II/subchapter-D/part-430/subpart-B/appendix-Appendix%20X1%20to%20Subpart%20B%20of%20Part%20430
@@ -52,7 +55,7 @@ class Dehumidifier(Appliance):
     def kWh_per_year(self) -> float:
         return self.water_removal_to_L / self.IEF * self.tank_switches_per_day * self.usage_per_year * 24 * 365
     
-    
+@dataclass
 class Dryer(Appliance):
     
             # The combined energy factor (CEF), in lbs/kWh, calculates the amount of power for a test load (8.45 lbs for standard and 3.00 lbs for compact dryers)
@@ -92,6 +95,7 @@ class Dryer(Appliance):
         elif dryer_type == "compact":
             return 1 / self.CEF * self.compact_test_load * self.yearly_loads
 
+@dataclass
 class Washer(Appliance):
 
     # The integrated modified energy factor (IMEF, ft3/kWh/cycle) can be used to calculate the energy consumption.
@@ -130,6 +134,7 @@ class Washer(Appliance):
     def annual_water_use(self) -> float:
         return self.ES_annual_water_use/self.average_uses * self.yearly_loads
 
+@dataclass
 class Dishwasher(Appliance):
 
 
@@ -164,7 +169,7 @@ class Dishwasher(Appliance):
     def annual_water_use(self) -> float:
         return self.water_use_per_cycle * self.yearly_loads
 
-
+@dataclass
 class Cooking(Appliance):
 
     # The energy use of cooking appliances (stoves, etc.) is measured by the API using the annual energy consumption.
@@ -203,7 +208,7 @@ class Cooking(Appliance):
     def kWh_per_year(self) -> float:
         return self.ES_annual_energy_use * self.yearly_uses / self.average_uses * self.time_use / self.average_time_use
 
-
+@dataclass
 class Freezer(Appliance):
 
     # Freezers are going to be difficult to estimate - there's not a "uses" parameter that's easy to extract.
@@ -239,6 +244,7 @@ class Freezer(Appliance):
     def kWh_per_year(self) -> float:
         return self.ES_annual_energy_use
 
+@dataclass
 class HeatPump(Appliance):
 
     # There are multiple heat pump calculations - this appliance is much more involved.
