@@ -18,6 +18,7 @@ class Home:
     ach50_defined: bool
     ach50_user: int
     south_facing_window_size_sq_m: int
+    window_year: int
     window_r_value_defined: bool
     window_r_value_imperial_user: int
     window_shgc_defined: bool
@@ -49,7 +50,11 @@ class Home:
         else:
             # Source: https://energysmartohio.com/uncategorized/do-the-walls-of-my-old-house-need-to-be-insulated/
             if self.home_year <= 1965:
-                return self.wall_insulation_r_value_construction
+                # Basic assumption - I assume the wall's R value is at least 2
+                if self.wall_insulation_r_value_construction < 2:
+                    return 2
+                else:
+                    return self.wall_insulation_r_value_construction
             elif self.home_year <= 1970:
                 return self.wall_insulation_r_value_construction + 8
             elif self.home_year <= 1990:
@@ -77,7 +82,41 @@ class Home:
             ach50_calc = 48 * (2.5 / self.ceiling_height_m) ** 0.3 * NL_value / self.ceiling_height_m
             return ach50_calc
 
-    
+    @property
+    def window_r_value_imperial(self) -> float:
+
+        if self.window_r_value_defined == True:
+            return self.window_r_value_imperial_user
+        else:
+            # Somewhat arbitrary, double-pane windows became standard in the 70s
+            # Source: https://www.thespruce.com/double-glazed-windows-1821739
+
+            # Triple pane windows are still relatively rare
+            # Source: https://www.pnnl.gov/news-media/how-triple-pane-windows-stop-energy-and-money-flying-out-window
+
+            # low e windows broke through around 2005
+            # Source: https://bipartisanpolicy.org/download/?file=/wp-content/uploads/2013/03/Case-Low-e-Windows.pdf
+            if self.window_year <= 1975:
+                return 1
+            elif self.window_year <= 2005:
+                return 2
+            else:
+                return 2.5
+
+    @property
+    def window_solar_heat_gain_coefficient(self) -> float:
+
+        if self.window_shgc_defined == True:
+            return self.window_solar_heat_gain_coefficient_user
+        else:
+            # Single vs. double pane
+            # source: https://esource.bizenergyadvisor.com/article/windows
+            if self.window_year <= 1975:
+                return 0.72
+            elif self.window_year <= 2005:
+                return 0.60
+            else:
+                return 0.34
 
     @property
     def building_volume_cu_m(self) -> int:
